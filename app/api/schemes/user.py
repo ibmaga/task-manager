@@ -1,41 +1,31 @@
-from fastapi.openapi.models import HTTPBearer
-from pydantic import BaseModel, ConfigDict
-from app.api.schemes.stuff import Roles
+from pydantic import BaseModel, ConfigDict, constr
+from app.api.schemes.other import roles
 
 
-class UserLogin(BaseModel):
-    username: str
-    password: str
-
-
-class UserRegistration(UserLogin):
-    role: str = Roles().quest
+class UserReg(BaseModel):
+    username: constr(min_length=3)
+    password: constr(min_length=6)
 
 
 class UserFromDB(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    user_id: int
+    id: int
     username: str
     password: str
-    role: str
+    role: roles | str
+
+
+class UserOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    username: str
+    password: str
+    role: roles | str
 
 
 class User(BaseModel):
     username: str
     password: str
-    role: str
-
-
-class Payload(BaseModel):
-    username: str
-    role: Roles | str
-    exp: float
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class Tokens(BaseModel):
-    access_token: str
-    refresh_token: str
-    type: str = "Bearer"
+    role: roles | str
