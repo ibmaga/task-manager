@@ -16,7 +16,7 @@ class UserCrud(CRUD):
     async def get_user_by_username(self, username: str) -> model:
         stmt = select(self.model).where(self.model.username == username)
         result = await self.session.execute(stmt)
-        user = result.scalar_one()
+        user = result.scalar_one_or_none()
         return user
 
     async def update_by_username(self, user_id: int, data: dict) -> model:
