@@ -63,13 +63,3 @@ async def websocket_endpoint(websocket: WebSocket):
             await websocket.receive_text()
     except WebSocketDisconnect:
         await websockets_manager.disconnect(websocket)
-
-
-"""
-изменить jwt что бы в нем был id пользователя - done,
-добавить возможность: 
-получение всех задач пользователя - done,
-изменения задачи - done,
-получения задачи по id или имени - done,
-изменения статуса задачи - done,
-"""
