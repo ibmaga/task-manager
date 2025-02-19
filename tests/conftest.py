@@ -1,6 +1,4 @@
-import asyncio
 import pytest_asyncio
-import pytest
 from typing import AsyncGenerator
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import create_async_engine
