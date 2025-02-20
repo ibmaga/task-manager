@@ -2,11 +2,11 @@ from typing import Sequence
 from sqlalchemy import select, delete, insert, update, and_
 
 from app.dao.base_dao import CRUD
-from app.db.models import Users, Tasks
+from app.db.models import User, Task
 
 
 class UserCrud(CRUD):
-    model = Users
+    model = User
 
     async def add_user(self, data: dict) -> model:
         stmt = insert(self.model).values(**data).returning(self.model)
@@ -19,7 +19,7 @@ class UserCrud(CRUD):
         user = result.scalar_one_or_none()
         return user
 
-    async def update_by_username(self, user_id: int, data: dict) -> model:
+    async def update_user_by_username(self, user_id: int, data: dict) -> model:
         stmt = (
             update(self.model)
             .where(self.model.id == user_id)
@@ -27,11 +27,11 @@ class UserCrud(CRUD):
             .returning(self.model)
         )
         result = await self.session.execute(stmt)
-        return result.scalar_one()
+        return result.scalar_one_or_none()
 
 
 class TaskCrud(CRUD):
-    model = Tasks
+    model = Task
 
     async def add_task(self, data: dict) -> model:
         stmt = insert(self.model).values(**data).returning(self.model)
@@ -57,8 +57,16 @@ class TaskCrud(CRUD):
         result = await self.session.execute(stmt)
         return result.scalars().all()
 
+    async def get_users(self, task_id: int) -> Sequence[User]:
+        stmt = select(User).join(Task).where(Task.id == task_id)
+        result = await self.session.execute(stmt)
+        return result.scalars().all()
+
     async def update_task(
-        self, creator_id: int, task_id: int, data: dict
+        self,
+        creator_id: int,
+        task_id: int,
+        data: dict,
     ) -> model | None:
         stmt = (
             update(self.model)

@@ -3,6 +3,7 @@ from fastapi import APIRouter, status, WebSocket, Query, WebSocketDisconnect
 
 from app.api.schemes.task import Task, TaskFromDB, TaskUpdate
 from app.api.dependencies import task_crud_dep, check_access_dep
+from app.api.schemes.user import UserFromDB
 from app.exc.models import ErrorResponseModel
 from app.utils.websockets import websockets_manager
 
@@ -14,7 +15,7 @@ router = APIRouter(prefix="/tasks", tags=["tasks"])
     status_code=status.HTTP_201_CREATED,
     responses={status.HTTP_401_UNAUTHORIZED: {"model": ErrorResponseModel}},
 )
-async def write_task(
+async def add_task(
     task: Annotated[Task, Query()],
     task_crud: task_crud_dep,
     jwt_payload: check_access_dep,
@@ -26,16 +27,11 @@ async def write_task(
 
 @router.get("/{task_id}")
 async def get_task(
-    task_id: int, task_crud: task_crud_dep, jwt_payload: check_access_dep
+    task_id: int,
+    task_crud: task_crud_dep,
+    jwt_payload: check_access_dep,
 ) -> TaskFromDB:
     return await task_crud.get_task(jwt_payload.id, task_id)
-
-
-@router.get("/get_all/")
-async def get_all_tasks(
-    task_crud: task_crud_dep, jwt_payload: check_access_dep
-) -> list[TaskFromDB]:
-    return await task_crud.get_tasks(jwt_payload.id)
 
 
 @router.patch("/{task_id}")
@@ -50,9 +46,27 @@ async def update_task(
 
 @router.delete("/{task_id}")
 async def delete_task(
-    task_id: int, task_crud: task_crud_dep, jwt_payload: check_access_dep
+    task_id: int,
+    task_crud: task_crud_dep,
+    jwt_payload: check_access_dep,
 ):
     return await task_crud.clear_task(jwt_payload.id, task_id)
+
+
+@router.get("/get_all/")
+async def get_tasks(
+    task_crud: task_crud_dep, jwt_payload: check_access_dep
+) -> list[TaskFromDB]:
+    return await task_crud.get_tasks(jwt_payload.id)
+
+
+@router.get("/get_users/{task_id}")
+async def get_users(
+    task_id: int,
+    task_crud: task_crud_dep,
+    jwt_payload: check_access_dep,
+) -> list[UserFromDB]:
+    return await task_crud.get_users(task_id)
 
 
 @router.websocket("/ws/")

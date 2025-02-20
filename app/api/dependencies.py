@@ -34,6 +34,7 @@ check_refresh_dep = Annotated[Payload, Depends(CheckToken(REFRESH_TOKEN_TYPE))]
 
 
 async def check_user(user: user_oauth2_dep, user_crud: user_crud_dep) -> UserOut:
+    """Проверка пользователя при авторизации"""
     user_from_db = await user_crud.get_user(username=user.username)
     return await authentication(user, user_from_db, user_crud)
 
@@ -41,5 +42,6 @@ async def check_user(user: user_oauth2_dep, user_crud: user_crud_dep) -> UserOut
 async def get_user_by_payload(
     payload: check_refresh_dep, user_crud: user_crud_dep
 ) -> UserFromDB:
+    """Получение пользователя по payload"""
     user_from_db = await user_crud.get_user(user_id=payload.id)
     return user_from_db

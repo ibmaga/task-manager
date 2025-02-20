@@ -5,7 +5,7 @@ from datetime import datetime
 from app.db.database import Base
 
 
-class Users(Base):
+class User(Base):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(
@@ -16,12 +16,14 @@ class Users(Base):
     role: Mapped[str] = mapped_column(String, nullable=False, default="quest")
 
     # Связь: пользователь может создать несколько задач
-    created_tasks: Mapped[list["Tasks"]] = relationship(
-        "Tasks", back_populates="creator", primaryjoin="Users.id==Tasks.creator_id"
+    created_tasks: Mapped[list["Task"]] = relationship(
+        "Task",
+        back_populates="creator",
+        primaryjoin="User.id==Task.creator_id",
     )
 
 
-class Tasks(Base):
+class Task(Base):
     __tablename__ = "tasks"
 
     id: Mapped[int] = mapped_column(
@@ -37,8 +39,11 @@ class Tasks(Base):
     description: Mapped[str] = mapped_column(Text, nullable=True)
     status: Mapped[str] = mapped_column(String, nullable=False, default="created")
     date: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=func.now(), server_default=func.now()
+        DateTime,
+        nullable=False,
+        default=func.now(),
+        server_default=func.now(),
     )
 
     # Отношение к пользователю (создателю)
-    creator: Mapped["Users"] = relationship("Users", back_populates="created_tasks")
+    creator: Mapped["User"] = relationship("User", back_populates="created_tasks")

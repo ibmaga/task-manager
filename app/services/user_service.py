@@ -1,6 +1,6 @@
 from sqlalchemy.exc import IntegrityError
 
-from app.db.models import Users
+from app.db.models import User
 from app.utils.unitofwork import IUnitOfWork
 from app.api.schemes.user import UserFromDB, UserReg, User
 from app.exc.exception import (
@@ -19,7 +19,7 @@ class UserCRUDService:
         data.update(password=create_hash(data["password"]))
         async with self.uow:
             try:
-                user: Users = await self.uow.user_crud.add_user(data)
+                user: User = await self.uow.user_crud.add_user(data)
                 await self.uow.commit()
                 return UserFromDB.model_validate(user)
             except IntegrityError:
@@ -30,9 +30,9 @@ class UserCRUDService:
     ) -> UserFromDB:
         async with self.uow:
             if user_id:
-                user: Users = await self.uow.user_crud.get_by_id(user_id)
+                user: User = await self.uow.user_crud.get_by_id(user_id)
             elif username:
-                user: Users = await self.uow.user_crud.get_user_by_username(username)
+                user: User = await self.uow.user_crud.get_user_by_username(username)
             await self.uow.commit()
             if not user:
                 raise UserNotFoundError
@@ -40,5 +40,5 @@ class UserCRUDService:
 
     async def update_user(self, user_id: int, user: User):
         async with self.uow:
-            await self.uow.user_crud.update_by_username(user_id, user.model_dump())
+            await self.uow.user_crud.update_user_by_username(user_id, user.model_dump())
             await self.uow.commit()

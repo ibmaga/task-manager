@@ -32,6 +32,7 @@ def get_user_view(user: UserFromDB) -> User:
 async def authentication(
     userdata: OAuth2PasswordRequestForm, user: UserFromDB, user_crud
 ) -> UserOut:
+    """Аутентификация пользователя: проверка пароля"""
     if verify_pass(userdata.password, user.password):
         """Изменение роли пользователя при авторизации на user"""
         if user.role != "user":
@@ -80,6 +81,7 @@ def decode_jwt(token: str) -> dict:
 
 
 def check_payload_token(token: str, type_token: str):
+    """Проверка токена на валидность"""
     try:
         payload = decode_jwt(token)
     except jwt.ExpiredSignatureError:
@@ -93,6 +95,8 @@ def check_payload_token(token: str, type_token: str):
 
 
 class CheckToken:
+    """Проверка токена на валидность"""
+
     def __init__(self, token_type: str):
         self.token_type = token_type
 
