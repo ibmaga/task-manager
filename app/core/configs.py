@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     TEST_DB_USER: str
     TEST_DB_PASS: str
 
+    REDIS_HOST: str
+    REDIS_PORT: str
+    REDIS_DB: int
     MODE: str
 
     @property
