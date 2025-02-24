@@ -31,3 +31,10 @@ class AuthenticationError(HTTPException):
 class TokenError(HTTPException):
     def __init__(self, status_code=status.HTTP_401_UNAUTHORIZED, detail="Token error"):
         super().__init__(status_code=status_code, detail=detail)
+
+
+class PermissionsError(HTTPException):
+    def __init__(
+        self, status_code=status.HTTP_403_FORBIDDEN, detail="You don't have permission"
+    ):
+        super().__init__(status_code=status_code, detail=detail)
