@@ -57,5 +57,16 @@ class TaskCRUDService:
 
     async def clear_task(self, creator_id: int, task_id: int):
         async with self.uow:
-            await self.uow.task_crud.clear_task(creator_id, task_id)
+            result = await self.uow.task_crud.clear_task(creator_id, task_id)
             await self.uow.commit()
+            if not result:
+                raise TaskNotFoundError
+            return result
+
+    async def clear_all_tasks(self, creator_id: int):
+        async with self.uow:
+            result = await self.uow.task_crud.clear_all_tasks(creator_id)
+            await self.uow.commit()
+            if not result:
+                raise TaskNotFoundError
+            return result
