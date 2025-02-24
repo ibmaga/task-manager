@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -23,6 +25,9 @@ class Settings(BaseSettings):
     REDIS_HOST: str
     REDIS_PORT: str
     REDIS_DB: int
+
+    LOG_TOKEN: str
+
     MODE: str
 
     @property
@@ -31,5 +36,14 @@ class Settings(BaseSettings):
             return f"postgresql+asyncpg://{self.TEST_DB_USER}:{self.TEST_DB_PASS}@{self.TEST_DB_HOST}/{self.TEST_DB_NAME}"
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}/{self.DB_NAME}"
 
+    @property
+    def redis_url(self):
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
-settings = Settings()
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()
+
+
+settings = get_settings()
