@@ -10,7 +10,7 @@ class ICRUD(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def get_by_id(self, idn: int):
+    async def get_by_id(self, ident: int):
         raise NotImplementedError
 
 
@@ -25,6 +25,6 @@ class CRUD(ICRUD):
         res = await self.session.execute(stmt)
         return res.scalar_one()
 
-    async def get_by_id(self, idn: int) -> model:
-        result = await self.session.get(self.model, idn)
+    async def get_by_id(self, ident: int) -> model:
+        result = await self.session.get(self.model, ident)
         return result

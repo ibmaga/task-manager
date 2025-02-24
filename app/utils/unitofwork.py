@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 
 from app.db.database import async_session
-from app.dao.dao import UserCrud, TaskCrud
+from app.dao.user_dao import UserCrud
+from app.dao.task_dao import TaskCrud
 
 
 class IUnitOfWork(ABC):
