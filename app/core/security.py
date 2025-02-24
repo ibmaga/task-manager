@@ -2,12 +2,12 @@ import jwt
 from fastapi import Depends, Response
 from datetime import datetime, timedelta, timezone
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm, HTTPBearer
-from passlib.hash import scrypt
 
 from app.api.schemes.other import Payload, Tokens
-from app.api.schemes.user import UserFromDB, User, UserOut
+from app.api.schemes.user import UserFromDB, UserOut
 from app.core.configs import settings
 from app.exc.exception import AuthenticationError, TokenError
+from app.utils.hasher import hasher
 
 oauth_scheme = OAuth2PasswordBearer(tokenUrl="/auth/log-in/")
 http_bearer = HTTPBearer(auto_error=False)
@@ -17,24 +17,12 @@ ACCESS_TOKEN_TYPE = "access"
 REFRESH_TOKEN_TYPE = "refresh"
 
 
-def create_hash(password: str) -> str:
-    return scrypt.hash(password)
-
-
-def verify_pass(password: str, hash_pass: str) -> bool:
-    return scrypt.verify(secret=password, hash=hash_pass)
-
-
-def get_user_view(user: UserFromDB) -> User:
-    return User(username=user.username, password=user.password, role=user.role)
-
-
 async def authentication(
     userdata: OAuth2PasswordRequestForm, user: UserFromDB, user_crud
 ) -> UserOut:
     """Аутентификация пользователя: проверка пароля"""
-    if verify_pass(userdata.password, user.password):
-        """Изменение роли пользователя при авторизации на user"""
+    if hasher.verify(userdata.password, user.password):
+        # Изменение роли пользователя при авторизации на user
         if user.role != "user":
             user.role = "user"
             await user_crud.update_user(user_id=user.id, user=user)
