@@ -20,6 +20,7 @@ class User(Base):
         "Task",
         back_populates="creator",
         primaryjoin="User.id==Task.creator_id",
+        cascade="all, delete-orphan",
     )
 
 
@@ -33,7 +34,7 @@ class Task(Base):
 
     # Изменяем поле: вместо ссылки на username используем creator_id, который ссылается на Users.id
     creator_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=True
     )
 
     description: Mapped[str] = mapped_column(Text, nullable=True)
