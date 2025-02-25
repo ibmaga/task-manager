@@ -4,6 +4,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from app.api.schemes.other import Payload
 from app.api.schemes.user import UserFromDB, UserOut
+from app.exc.exception import PermissionsError
+from app.log.log import logger
 from app.utils.unitofwork import IUnitOfWork, UnitOfWork
 from app.services.task_service import TaskCRUDService
 from app.services.user_service import UserCRUDService
@@ -45,3 +47,14 @@ async def get_user_by_payload(
     """Получение пользователя по payload"""
     user_from_db = await user_crud.get_user(user_id=payload.id)
     return user_from_db
+
+
+class CheckPermission:
+
+    def __init__(self, role: str = "admin"):
+        self.role = role
+
+    async def __call__(self, jwt_payload: check_access_dep):
+        logger.info(f"CheckPermission: {jwt_payload}")
+        if jwt_payload.role != self.role:
+            raise PermissionsError
