@@ -1,5 +1,3 @@
-from sqlalchemy.exc import IntegrityError
-
 from app.db.models import User
 from app.utils.unitofwork import IUnitOfWork
 from app.api.schemes.user import UserFromDB, UserReg, User
@@ -20,15 +18,18 @@ class UserCRUDService:
         data = user.model_dump()
         data.update(password=hasher.hash(data["password"]))
         async with self.uow:
-            try:
+            user_db = await self.uow.user_crud.get_user_by_username(data["username"])
+            if not user_db:
                 user: User = await self.uow.user_crud.add_user(data)
                 await self.uow.commit()
                 return UserFromDB.model_validate(user)
-            except IntegrityError:
-                raise UserAlreadyExistsError
+
+            raise UserAlreadyExistsError
 
     async def get_user(
-        self, user_id: int | None = None, username: str | None = None
+        self,
+        user_id: int | None = None,
+        username: str | None = None,
     ) -> UserFromDB:
         async with self.uow:
             if user_id:
@@ -44,7 +45,7 @@ class UserCRUDService:
                 raise AuthenticationError
             return UserFromDB.model_validate(user)
 
-    async def update_user(self, user_id: int, user: User):
+    async def update_user(self, user_id: int, user: User) -> UserFromDB:
         async with self.uow:
             result = await self.uow.user_crud.update_user_by_id(
                 user_id, user.model_dump()
@@ -55,11 +56,11 @@ class UserCRUDService:
                 raise UserNotFoundError
             return UserFromDB.model_validate(result)
 
-    async def delete_user(self, user_id: int):
+    async def delete_user(self, user_id: int) -> UserFromDB:
         async with self.uow:
             result = await self.uow.user_crud.delete_user_by_id(user_id)
             await self.uow.commit()
 
             if not result:
                 raise UserNotFoundError
-            return result
+            return UserFromDB.model_validate(result)
