@@ -23,7 +23,7 @@ async def authentication(
     """Аутентификация пользователя: проверка пароля"""
     if hasher.verify(userdata.password, user.password):
         # Изменение роли пользователя при авторизации на user
-        if user.role != "user":
+        if user.role != "user" and user.role != "admin":
             user.role = "user"
             await user_crud.update_user(user_id=user.id, user=user)
         return UserOut.model_validate(user)

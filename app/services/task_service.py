@@ -1,4 +1,4 @@
-from app.api.schemes.task import Task, TaskFromDB
+from app.api.schemes.task import Task, TaskFromDB, TaskUpdate
 from app.api.schemes.user import UserFromDB
 from app.exc.exception import TaskNotFoundError
 from app.utils.unitofwork import IUnitOfWork
@@ -45,7 +45,7 @@ class TaskCRUDService:
             return [UserFromDB.model_validate(user) for user in users]
 
     async def update_task(
-        self, creator_id: int, task_id: int, task: Task
+        self, creator_id: int, task_id: int, task: TaskUpdate
     ) -> TaskFromDB:
         data = task.model_dump()
         async with self.uow:

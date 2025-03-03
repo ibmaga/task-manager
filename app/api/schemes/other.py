@@ -26,7 +26,7 @@ class Payload(BaseModel):
     type: type_token
     sub: str
     id: int
-    role: roles | str = "user"
+    role: roles | str
     iat: int
     exp: int
 
