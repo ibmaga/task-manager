@@ -8,7 +8,9 @@ from app.exc.response_manager import TaskResponses
 from app.utils.websockets import websockets_manager
 
 router = APIRouter(
-    prefix="/tasks", tags=["tasks"], responses=TaskResponses.task_responses
+    prefix="/tasks",
+    tags=["tasks"],
+    responses=TaskResponses.task_responses,
 )
 
 
@@ -18,6 +20,7 @@ async def add_task(
     task_crud: task_crud_dep,
     jwt_payload: check_access_dep,
 ) -> TaskFromDB:
+    """Добавление новой задачи"""
     result = await task_crud.add_task(jwt_payload.id, task)
     await websockets_manager.broadcast(f"New task: {result}")
     return result
@@ -29,6 +32,7 @@ async def get_task(
     task_crud: task_crud_dep,
     jwt_payload: check_access_dep,
 ) -> TaskFromDB:
+    """Получение задачи по task_id"""
     return await task_crud.get_task(jwt_payload.id, task_id)
 
 
@@ -39,7 +43,10 @@ async def update_task(
     task_crud: task_crud_dep,
     jwt_payload: check_access_dep,
 ) -> TaskFromDB:
-    return await task_crud.update_task(jwt_payload.id, task_id, task)
+    """Обновление задачи"""
+    result = await task_crud.update_task(jwt_payload.id, task_id, task)
+    await websockets_manager.broadcast(f"Update task: {result}")
+    return result
 
 
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -48,6 +55,7 @@ async def delete_task(
     task_crud: task_crud_dep,
     jwt_payload: check_access_dep,
 ):
+    """Удаление задачи"""
     return await task_crud.clear_task(jwt_payload.id, task_id)
 
 
@@ -55,6 +63,7 @@ async def delete_task(
 async def get_tasks(
     task_crud: task_crud_dep, jwt_payload: check_access_dep
 ) -> list[TaskFromDB]:
+    """Получение всех своих задач"""
     return await task_crud.get_tasks(jwt_payload.id)
 
 
@@ -70,6 +79,7 @@ async def get_users(
 
 @router.delete("/clear_all/", status_code=status.HTTP_204_NO_CONTENT)
 async def get_users(task_crud: task_crud_dep, jwt_payload: check_access_dep):
+    """Удаление всех задач"""
     return await task_crud.clear_all_tasks(jwt_payload.id)
 
 
